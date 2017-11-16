@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Pacific Northwest Golf</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="pnwgolf.js"></script>
+</head>
+<body>
+	<input type="button" id="btnAddCourse" value="Add New Course">
+	<input type="button" id="btnAddHole" value="Add New Hole">
+
+	<fieldset hidden id="formAddCourse">
+		<legend>Course Information</legend>
+		<p>
+			<label for="addCourseName">Course: </label>
+			<input type="text" id="addCourseName" class="courseInfoField">
+		</p>
+		<p>
+			<label for="addCourseStreet">Address: </label>
+			<input type="text" id="addCourseStreet" class="courseInfoField">
+		</p>
+		<p>
+			<label for="addCourseCity">City: </label>
+			<input type="text" id="addCourseCity" class="courseInfoField">
+		</p>
+		<p>
+			<label for="addCourseState">State: </label>
+			<input type="text" id="addCourseState" class="courseInfoField">
+		</p>
+		<p>
+			<label for="addCourseZip">ZIP: </label>
+			<input type="text" id="addCourseZip" class="courseInfoField">
+		</p>
+		<input type="button" id="newCourseSubmit" value="Submit" style="float: right">
+	</fieldset>
+	<fieldset hidden id="formAddHole">
+		<legend>Hole Information</legend>
+		<p>
+			<label for="addHoleCourseName">Course: </label>
+			<input type="text" id="addHoleCourseName" class="holeInfoField">
+		</p>
+		<p>
+			<label for="addHole">Hole number: </label>
+			<input type="text" id="addHole" class="holeInfoField">
+		</p>
+		<p>
+			<label for="addHoleBYard">Blue Yardage: </label>
+			<input type="text" id="addHoleBYard" class="holeInfoField">
+		</p>
+		<p>
+			<label for="addHoleWYard">White Yardage: </label>
+			<input type="text" id="addHoleWYard" class="holeInfoField">
+		</p>
+		<p>
+			<label for="addHoleRYard">Red Yardage: </label>
+			<input type="text" id="addHoleRYard" class="holeInfoField">
+		</p>
+		<p>
+			<label for="addHolePar">Red Yardage: </label>
+			<input type="text" id="addHolePar" class="holeInfoField">
+		</p>
+		<input type="button" id="newHoleSubmit" value="Submit" style="float: right">
+	</fieldset>
+	<input type="button" id="printCurCourses" value="Current Courses">
+</body>
+</html>
