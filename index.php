@@ -22,7 +22,9 @@ function getConnection($servername, $username, $password)
 	}
 	catch(PDOException $e)
 	{
+		http_response_code(403);
 		echo "Connection failed: " . $e->getMessage();
+		exit(1);
 	}
 
 	return $conn;
@@ -62,8 +64,7 @@ function printHoles($conn)
 	$conn = null;
 }
 
-
-function printHolesFromCourse($course, $conn)
+function printHolesByCourse($course, $conn)
 {
 
 	try{
@@ -120,6 +121,27 @@ function printHolesByPar($par, $conn)
 
 }
 
+function printHolesByCourseHolePar($course, $hole, $par, $conn)
+{
+	//TODO add sql query
+}
+
+function printHolesByCourseHole($course, $hole, $conn)
+{
+	//TODO add sql query
+}
+
+function printHolesByCoursePar($course, $par, $conn)
+{
+	//TODO add sql query
+}
+
+function printHolesByHolePar($hole, $par, $conn)
+{
+	//TODO add sql query
+}
+
+
 function printCoursesByCityState($city, $state, $conn)
 {
 	try{
@@ -151,8 +173,7 @@ function deleteCourse($conn, $_DELETE)
 	}
 
 	try {
-		$statement = $conn->prepare('DELETE FROM courses
-										WHERE course_name = :course');
+		$statement = $conn->prepare('DELETE FROM courses WHERE course_name = :course');
 		$statement->bindParam('course', $course_name);
 		$statement->execute();
 	} catch (PDOException $e) {
@@ -160,7 +181,7 @@ function deleteCourse($conn, $_DELETE)
 		echo $e->getMessage();
 	}
 
-	printCourses($conn);
+	//printCourses($conn);
 	$conn = null;
 
 }
@@ -334,43 +355,66 @@ if($_SERVER["REQUEST_METHOD"] == "GET")
 		4. Get all holes of a certain par. Par will be sent in
 		5. Get all courses from a specific city, state, zip code(?). Identifier will be sent in
 	*/
-	if(isset($_GET["request"]) && !empty($_GET["request"]))
+
+	if(isset($_GET["holes"]) && !empty($_GET["holes"]))
 	{
-		$id = $_GET["request"];
-		if($id == 0)
+		if(isset($_GET["course_name"]) && !empty($_GET["course_name"]))
 		{
-			printCourses(getConnection($servername, $username, $password));
-		}
-		elseif($id == 1)
+			if(isset($_GET["hole"]) && !empty($_GET["hole"]))
+			{
+				if(isset($_GET["par"]) && !empty($_GET["par"]))
+				{
+					printHolesByCourseHolePar($_GET["course_name"], $_GET["hole"], $_GET["par"], getConnection($servername, $username, $password));
+				}
+				else
+				{
+					printHolesByCourseHole($_GET["course_name"], $_GET["hole"], getConnection($servername, $username, $password));
+				}
+
+			}
+			elseif(isset($_GET["par"]) && !empty($_GET["par"]))
+			{
+				printHolesByCoursePar($_GET["course_name"], $_GET["par"], getConnection($servername, $username, $password));
+			}
+			else
+			{
+				printHolesByCourse($_GET["course"], getConnection($servername, $username, $password));
+			}
+
+		}//End course_name check
+		elseif(isset($_GET["hole"]) && !empty($_GET["hole"]))
 		{
-			printHoles(getConnection($servername, $username, $password));
+			if(isset($_GET["par"]) && !empty($_GET["par"]))
+			{
+				printHolesByHolePar($_GET["hole"], $_GET["par"], getConnection($servername, $username, $password));
+			}
+			else//print by hole
+			{
+				printHolesByNumber($_GET["hole"], getConnection($servername, $username, $password));
+			}
 		}
-		elseif($id == 2)
-		{
-			printHolesFromCourse($_GET["course"], getConnection($servername, $username, $password));
-		}
-		elseif($id == 3)
-		{
-			printHolesByNumber($_GET["hole"], getConnection($servername, $username, $password));
-		}
-		elseif($id == 4)
+		elseif(isset($_GET["par"]) && !empty($_GET["par"]))
 		{
 			printHolesByPar($_GET["par"], getConnection($servername, $username, $password));
 		}
-		elseif($id == 5)
+		else//default print
 		{
-			printCoursesByCityState($_GET["city"], $_GET["state"], getConnection($servername, $username, $password));
+			printHoles(getConnection($servername, $username, $password));
 		}
-		/*else
-		{
-			taken out temporarily, until I figure out how I want individual calls to be made
-			printItem(getConnection($servername, $username, $password), $id);
-		}*/
 	}
 	else
 	{
-		printCourses(getConnection($servername, $username, $password));
+		if(isset($_GET["city"]) && !empty($_GET["city"]))
+		{
+			printCoursesByCityState($_GET["city"], $_GET["state"], getConnection($servername, $username, $password));
+		}
+		else
+		{
+			printCourses(getConnection($servername, $username, $password));
+		}
+
 	}
+
 }
 
 
@@ -387,14 +431,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 	{
 		addCourse(getConnection($servername, $username, $password));
 	}
-	else if(isset($_POST["hole"]))
+	elseif(isset($_POST["hole"]))
 	{
 		addHole(getConnection($servername, $username, $password));
 	}
 	else
 	{
 		http_response_code(500);
-		echo "unexpected error occured";
+		echo "Unexpected error occured";
 	}
 
 }

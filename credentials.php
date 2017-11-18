@@ -7,10 +7,13 @@
  */
 
 $servername = "localhost";
-$username = "awmccanna";
+//$username = "awmccanna";
+//$password = "password";
+
 //$username = "alexmcc2_cscd378";
-$password = "password";
 //$password = "cscd378Password";
 
+$username = "public";
+$password = "public";
 
 ?>
