@@ -146,20 +146,18 @@ function printCoursesByCityState($city, $state, $conn)
 function deleteCourse($conn, $_DELETE)
 {
 
-//TODO finish this?
 	if (isset($_DELETE["course_name"])) {
 		$course_name = $_DELETE["course_name"];
 	}
 
 	try {
-		$statement = $conn->prepare('DELETE FROM courses c 
-										JOIN course_info ci ON c.course_name = ci.course_name 
-										WHERE c.course_name = :course');
+		$statement = $conn->prepare('DELETE FROM courses
+										WHERE course_name = :course');
 		$statement->bindParam('course', $course_name);
 		$statement->execute();
 	} catch (PDOException $e) {
 		http_response_code(500);
-		echo $sql . "<br>" . $e->getMessage();
+		echo $e->getMessage();
 	}
 
 	printCourses($conn);
