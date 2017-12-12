@@ -123,22 +123,72 @@ function printHolesByPar($par, $conn)
 
 function printHolesByCourseHolePar($course, $hole, $par, $conn)
 {
-	//TODO add sql query
+	try {
+		$statement = $conn->prepare('SELECT * FROM course_info WHERE course_name = :course AND hole_number = :hole AND par = :par');
+		$statement->bindParam('course', $course);
+		$statement->bindParam('hole', $hole);
+		$statement->bindParam('par', $par);
+		$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+	}
+	catch (PDOException $e) {
+		http_response_code(500);
+		echo $e->getMessage();
+	}
+	http_response_code(200);
+	echo json_encode($result);
+	$conn = null;
+
 }
 
 function printHolesByCourseHole($course, $hole, $conn)
 {
-	//TODO add sql query
+	try {
+		$statement = $conn->prepare('SELECT * FROM course_info WHERE course_name = :course AND hole_number = :hole');
+		$statement->bindParam('course', $course);
+		$statement->bindParam('hole', $hole);
+		$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+	}
+	catch (PDOException $e) {
+		http_response_code(500);
+		echo $e->getMessage();
+	}
+	http_response_code(200);
+	echo json_encode($result);
+	$conn = null;
 }
 
 function printHolesByCoursePar($course, $par, $conn)
 {
-	//TODO add sql query
+	try {
+		$statement = $conn->prepare('SELECT * FROM course_info WHERE course_name = :course AND par = :par');
+		$statement->bindParam('course', $course);
+		$statement->bindParam('par', $par);
+		$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+	}
+	catch (PDOException $e) {
+		http_response_code(500);
+		echo $e->getMessage();
+	}
+	http_response_code(200);
+	echo json_encode($result);
+	$conn = null;
 }
 
 function printHolesByHolePar($hole, $par, $conn)
 {
-	//TODO add sql query
+	try {
+		$statement = $conn->prepare('SELECT * FROM course_info WHERE hole_number = :hole AND par = :par');
+		$statement->bindParam('hole', $hole);
+		$statement->bindParam('par', $par);
+		$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+	}
+	catch (PDOException $e) {
+		http_response_code(500);
+		echo $e->getMessage();
+	}
+	http_response_code(200);
+	echo json_encode($result);
+	$conn = null;
 }
 
 
@@ -161,28 +211,57 @@ function printCoursesByCityState($city, $state, $conn)
 
 }
 
+function printCourseByNameCityState($course_name, $city, $state, $conn)
+{
+	try{
+		$statement = $conn->prepare('SELECT * FROM courses WHERE courses.course_name = :name AND courses.city = :city AND courses.state = :state');
+		$statement->bindParam('name', $course_name);
+		$statement->bindParam('city', $city);
+		$statement->bindParam('state', $state);
+		$statement->execute();
+		$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+	}
+	catch(PDOException $e){
+		http_response_code(500);
+		echo $e->getMessage();
+	}
+	http_response_code(200);
+	echo json_encode($result);
+	$conn = null;
+}
 
-
-
+function printCourseByName($course_name, $conn)
+{
+	try{
+		$statement = $conn->prepare('SELECT * FROM courses WHERE courses.course_name = :name');
+		$statement->bindParam('name', $course_name);
+		$statement->execute();
+		$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+	}
+	catch(PDOException $e){
+		http_response_code(500);
+		echo $e->getMessage();
+	}
+	http_response_code(200);
+	echo json_encode($result);
+	$conn = null;
+}
 
 function deleteCourse($conn, $_DELETE)
 {
 
 	if (isset($_DELETE["course_name"])) {
 		$course_name = $_DELETE["course_name"];
+		try {
+			$statement = $conn->prepare('DELETE FROM courses WHERE course_name = :course');
+			$statement->bindParam('course', $course_name);
+			$statement->execute();
+		} catch (PDOException $e) {
+			http_response_code(500);
+			echo $e->getMessage();
+		}
+		$conn = null;
 	}
-
-	try {
-		$statement = $conn->prepare('DELETE FROM courses WHERE course_name = :course');
-		$statement->bindParam('course', $course_name);
-		$statement->execute();
-	} catch (PDOException $e) {
-		http_response_code(500);
-		echo $e->getMessage();
-	}
-
-	//printCourses($conn);
-	$conn = null;
 
 }
 
@@ -197,17 +276,15 @@ function deleteHole($conn, $_DELETE)
 		$hole = $_DELETE["hole"];
 	}
 
-
 	try {
-
-		$sql = "DELETE FROM `course_info` WHERE `course_name` = '" . $course_name . "' AND `hole_number` = '" . $hole . "'";
-		$result = $conn->query($sql);
+		$statement  = $conn->prepare('DELETE FROM course_info WHERE course_name = :name AND hole_number = :hole');
+		$statement->bindParam('name', $course_name);
+		$statement->bindParam('hole', $hole);
+		$statement->execute();
 	} catch (PDOException $e) {
 		http_response_code(500);
-		echo $sql . "<br>" . $e->getMessage();
+		echo $e->getMessage();
 	}
-
-	printCourses($conn);
 	$conn = null;
 
 }
@@ -347,13 +424,11 @@ if($_SERVER["REQUEST_METHOD"] == "DELETE")
 if($_SERVER["REQUEST_METHOD"] == "GET")
 {
 
-	/*TODO There will be quite a bit that I want added here.
-		0. Get all available courses. Default
-		1. Get all holes.
-		2. Get all holes from a certain course. Course name will be sent in
-		3. Get all holes of a certain number. Hole number will be sent in
-		4. Get all holes of a certain par. Par will be sent in
-		5. Get all courses from a specific city, state, zip code(?). Identifier will be sent in
+	/*
+	--How it works:
+		Checks if holes is set. If it is, that means that it is coming from the ./pnwgolf/holes
+		Then checks for course_name, hole, and par being sent in. Call appropriate method based off of the request.
+		If no other fields are sent in, does a default print.
 	*/
 
 	if(isset($_GET["holes"]) && !empty($_GET["holes"]))
@@ -402,9 +477,20 @@ if($_SERVER["REQUEST_METHOD"] == "GET")
 			printHoles(getConnection($servername, $username, $password));
 		}
 	}
-	else
+	else//courses or basic index
 	{
-		if(isset($_GET["city"]) && !empty($_GET["city"]))
+		if(isset($_GET["course_name"]) && !empty($_GET["course_name"]))
+		{
+			if(isset($_GET["city"]) && !empty($_GET["city"]) && isset($_GET["state"]) && !empty($_GET["state"]))
+			{
+				printCourseByNameCityState($_GET["course_name"], $_GET["city"], $_GET["state"], getConnection($servername, $username, $password));
+			}
+			else
+			{
+				printCourseByName($_GET["course_name"], getConnection($servername, $username, $password));
+			}
+		}
+		if(isset($_GET["city"]) && !empty($_GET["city"]) && isset($_GET["state"]) && !empty($_GET["state"]))
 		{
 			printCoursesByCityState($_GET["city"], $_GET["state"], getConnection($servername, $username, $password));
 		}
@@ -420,6 +506,7 @@ if($_SERVER["REQUEST_METHOD"] == "GET")
 
 if($_SERVER["REQUEST_METHOD"] == "PUT")
 {
+	//Currently not implemented, won't be available for public use regardless
 	$_PUT = array();
 	parse_str(file_get_contents('php://input'), $_PUT);
 	//editHole(getConnection($servername, $username, $password), $_PUT);
@@ -447,7 +534,22 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 if($_SERVER["REQUEST_METHOD"] == "OPTIONS")
 {
 	//$array = "PUT<br>POST: <br>movie_name: title, year_released: year, studio: studio, price: price<br>GET:<br>id-returns specific entry by id <br>DELETE";
-	echo "In progress";
+	echo "API Usage<br>
+		URL: /holes<br>
+		Returns information about specific holes on a course<br>
+		Options:<br>
+		none: Returns information on all holes<br>
+		course_name (string): All the holes of the desired course.<br>
+		hole (int): Hole number.<br>
+		par (int): Par of the hole or holes<br><br>
+		URL: /courses<br>
+		Returns information about the courses<br>
+		Options:<br>
+		course_name (string): Information about the course.<br>
+		city state (string, 2 letter string): Courses in the supplied city and state.<br><br>
+		URL: /index<br>
+		Returns information on all the courses";
+
 }
 
 
