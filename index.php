@@ -12,6 +12,12 @@ require_once "credentials.php";
 /*
  * Function takes in server information, and returns a PDO object
  */
+/**
+ * @param $servername
+ * @param $username
+ * @param $password
+ * @return PDO
+ */
 function getConnection($servername, $username, $password)
 {
 	try
@@ -31,6 +37,9 @@ function getConnection($servername, $username, $password)
 }
 
 
+/**
+ * @param $conn PDO
+ */
 function printCourses($conn)
 {
 	try{
@@ -48,6 +57,9 @@ function printCourses($conn)
 	$conn = null;
 }
 
+/**
+ * @param $conn PDO
+ */
 function printHoles($conn)
 {
 	try{
@@ -64,6 +76,10 @@ function printHoles($conn)
 	$conn = null;
 }
 
+/**
+ * @param $course
+ * @param $conn PDO
+ */
 function printHolesByCourse($course, $conn)
 {
 
@@ -83,6 +99,10 @@ function printHolesByCourse($course, $conn)
 
 }
 
+/**
+ * @param $hole
+ * @param $conn PDO
+ */
 function printHolesByNumber($hole, $conn)
 {
 
@@ -102,6 +122,10 @@ function printHolesByNumber($hole, $conn)
 
 }
 
+/**
+ * @param $par
+ * @param $conn PDO
+ */
 function printHolesByPar($par, $conn)
 {
 
@@ -121,6 +145,12 @@ function printHolesByPar($par, $conn)
 
 }
 
+/**
+ * @param $course
+ * @param $hole
+ * @param $par
+ * @param $conn PDO
+ */
 function printHolesByCourseHolePar($course, $hole, $par, $conn)
 {
 	try {
@@ -140,6 +170,11 @@ function printHolesByCourseHolePar($course, $hole, $par, $conn)
 
 }
 
+/**
+ * @param $course
+ * @param $hole
+ * @param $conn PDO
+ */
 function printHolesByCourseHole($course, $hole, $conn)
 {
 	try {
@@ -157,6 +192,11 @@ function printHolesByCourseHole($course, $hole, $conn)
 	$conn = null;
 }
 
+/**
+ * @param $course
+ * @param $par
+ * @param $conn PDO
+ */
 function printHolesByCoursePar($course, $par, $conn)
 {
 	try {
@@ -174,6 +214,11 @@ function printHolesByCoursePar($course, $par, $conn)
 	$conn = null;
 }
 
+/**
+ * @param $hole
+ * @param $par
+ * @param $conn PDO
+ */
 function printHolesByHolePar($hole, $par, $conn)
 {
 	try {
@@ -192,6 +237,11 @@ function printHolesByHolePar($hole, $par, $conn)
 }
 
 
+/**
+ * @param $city
+ * @param $state
+ * @param $conn PDO
+ */
 function printCoursesByCityState($city, $state, $conn)
 {
 	try{
@@ -211,6 +261,12 @@ function printCoursesByCityState($city, $state, $conn)
 
 }
 
+/**
+ * @param $course_name
+ * @param $city
+ * @param $state
+ * @param $conn PDO
+ */
 function printCourseByNameCityState($course_name, $city, $state, $conn)
 {
 	try{
@@ -230,6 +286,80 @@ function printCourseByNameCityState($course_name, $city, $state, $conn)
 	$conn = null;
 }
 
+/**
+ * @param $course_name
+ * @param $city
+ * @param $conn PDO
+ */
+function printCourseByNameCity($course_name, $city, $conn)
+{
+	try{
+		$statement = $conn->prepare('SELECT * FROM courses WHERE courses.course_name = :name AND courses.city = :city');
+		$statement->bindParam('name', $course_name);
+		$statement->bindParam('city', $city);
+		$statement->execute();
+		$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+	}
+	catch(PDOException $e){
+		http_response_code(500);
+		echo $e->getMessage();
+	}
+	http_response_code(200);
+	echo json_encode($result);
+	$conn = null;
+}
+
+/**
+ * @param $course_name
+ * @param $state
+ * @param $conn PDO
+ */
+function printCourseByNameState($course_name, $state, $conn)
+{
+	try{
+		$statement = $conn->prepare('SELECT * FROM courses WHERE courses.course_name = :name AND courses.state = :state');
+		$statement->bindParam('name', $course_name);
+		$statement->bindParam('state', $state);
+		$statement->execute();
+		$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+	}
+	catch(PDOException $e){
+		http_response_code(500);
+		echo $e->getMessage();
+	}
+	http_response_code(200);
+	echo json_encode($result);
+	$conn = null;
+}
+
+/**
+ * @param $city
+ * @param $state
+ * @param $conn PDO
+ */
+function printCourseByCityState($city, $state, $conn)
+{
+	try{
+		$statement = $conn->prepare('SELECT * FROM courses WHERE courses.city = :city AND courses.state = :state');
+		$statement->bindParam('city', $city);
+		$statement->bindParam('state', $state);
+		$statement->execute();
+		$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+	}
+	catch(PDOException $e){
+		http_response_code(500);
+		echo $e->getMessage();
+	}
+	http_response_code(200);
+	echo json_encode($result);
+	$conn = null;
+}
+
+
+/**
+ * @param $course_name
+ * @param $conn PDO
+ */
 function printCourseByName($course_name, $conn)
 {
 	try{
@@ -247,9 +377,56 @@ function printCourseByName($course_name, $conn)
 	$conn = null;
 }
 
+/**
+ * @param $city
+ * @param $conn PDO
+ */
+function printCourseByCity($city, $conn)
+{
+	try{
+		$statement = $conn->prepare('SELECT * FROM courses WHERE courses.city = :city');
+		$statement->bindParam('city', $city);
+		$statement->execute();
+		$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+	}
+	catch(PDOException $e){
+		http_response_code(500);
+		echo $e->getMessage();
+	}
+	http_response_code(200);
+	echo json_encode($result);
+	$conn = null;
+}
+
+/**
+ * @param $state
+ * @param $conn PDO
+ */
+function printCourseByState($state, $conn)
+{
+	try{
+		$statement = $conn->prepare('SELECT * FROM courses WHERE courses.state = :state');
+		$statement->bindParam('state', $state);
+		$statement->execute();
+		$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+	}
+	catch(PDOException $e){
+		http_response_code(500);
+		echo $e->getMessage();
+	}
+	http_response_code(200);
+	echo json_encode($result);
+	$conn = null;
+}
+
+
+
+/**
+ * @param $conn PDO
+ * @param $_DELETE
+ */
 function deleteCourse($conn, $_DELETE)
 {
-
 	if (isset($_DELETE["course_name"])) {
 		$course_name = $_DELETE["course_name"];
 		try {
@@ -262,10 +439,13 @@ function deleteCourse($conn, $_DELETE)
 		}
 		$conn = null;
 	}
-
 }
 
 
+/**
+ * @param $conn PDO
+ * @param $_DELETE
+ */
 function deleteHole($conn, $_DELETE)
 {
 
@@ -290,10 +470,9 @@ function deleteHole($conn, $_DELETE)
 }
 
 
-
-
-
-
+/**
+ * @param $conn PDO
+ */
 function addCourse($conn)
 {
 	if(isset($_POST["course_name"]) && !empty($_POST["course_name"]))
@@ -339,6 +518,9 @@ function addCourse($conn)
 }
 
 
+/**
+ * @param $conn PDO
+ */
 function addHole($conn)
 {
 	if(isset($_POST["course_name"]) && !empty($_POST["course_name"]))
@@ -481,18 +663,42 @@ if($_SERVER["REQUEST_METHOD"] == "GET")
 	{
 		if(isset($_GET["course_name"]) && !empty($_GET["course_name"]))
 		{
-			if(isset($_GET["city"]) && !empty($_GET["city"]) && isset($_GET["state"]) && !empty($_GET["state"]))
+			if(isset($_GET["city"]) && !empty($_GET["city"]))
 			{
-				printCourseByNameCityState($_GET["course_name"], $_GET["city"], $_GET["state"], getConnection($servername, $username, $password));
+				if(isset($_GET["state"]) && !empty($_GET["state"]))
+				{
+					printCourseByNameCityState($_GET["course_name"], $_GET["city"], $_GET["state"], getConnection($servername, $username, $password));
+				}
+				else
+				{
+					printCourseByNameCity($_GET["course_name"], $_GET["city"], getConnection($servername, $username, $password));
+				}
+
+			}
+			elseif(isset($_GET["state"]) && !empty($_GET["state"]))
+			{
+				printCourseByNameState($_GET["course_name"], $_GET["state"], getConnection($servername, $username, $password));
 			}
 			else
 			{
 				printCourseByName($_GET["course_name"], getConnection($servername, $username, $password));
+
 			}
 		}
-		if(isset($_GET["city"]) && !empty($_GET["city"]) && isset($_GET["state"]) && !empty($_GET["state"]))
+		elseif(isset($_GET["city"]) && !empty($_GET["city"]))
 		{
-			printCoursesByCityState($_GET["city"], $_GET["state"], getConnection($servername, $username, $password));
+			if(isset($_GET["state"]) && !empty($_GET["state"]))
+			{
+				printCourseByCityState($_GET["city"], $_GET["state"], getConnection($servername, $username, $password));
+			}
+			else
+			{
+				printCourseByCity($_GET["city"], getConnection($servername, $username, $password));
+			}
+		}
+		elseif(isset($_GET["state"]) && !empty($_GET["state"]))
+		{
+			printCourseByState($_GET["state"], getConnection($servername, $username, $password));
 		}
 		else
 		{
@@ -546,7 +752,8 @@ if($_SERVER["REQUEST_METHOD"] == "OPTIONS")
 		Returns information about the courses<br>
 		Options:<br>
 		course_name (string): Information about the course.<br>
-		city state (string, 2 letter string): Courses in the supplied city and state.<br><br>
+		city (string): Courses in the given city.<br>
+		state (2 letter string): Courses in the given city.<br><br>
 		URL: /index<br>
 		Returns information on all the courses";
 
