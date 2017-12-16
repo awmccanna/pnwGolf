@@ -105,9 +105,8 @@ function printHolesByCourse($course, $conn)
  */
 function printHolesByNumber($hole, $conn)
 {
-
 	try{
-		$statement = $conn->prepare('SELECT * FROM course_info WHERE course_info.hole_number = :hole');
+		$statement = $conn->prepare('SELECT * FROM course_info WHERE course_info.hole = :hole');
 		$statement->bindParam('hole', $hole);
 		$statement->execute();
 		$result = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -130,7 +129,7 @@ function printHolesByPar($par, $conn)
 {
 
 	try{
-		$statement = $conn->prepare('SELECT * FROM course_info WHERE course_info.par = :par');
+		$statement = $conn->prepare('SELECT * FROM course_info WHERE par = :par');
 		$statement->bindParam('par', $par);
 		$statement->execute();
 		$result = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -154,7 +153,7 @@ function printHolesByPar($par, $conn)
 function printHolesByCourseHolePar($course, $hole, $par, $conn)
 {
 	try {
-		$statement = $conn->prepare('SELECT * FROM course_info WHERE course_name = :course AND hole_number = :hole AND par = :par');
+		$statement = $conn->prepare('SELECT * FROM course_info WHERE course_name = :course AND hole = :hole AND par = :par');
 		$statement->bindParam('course', $course);
 		$statement->bindParam('hole', $hole);
 		$statement->bindParam('par', $par);
@@ -178,7 +177,7 @@ function printHolesByCourseHolePar($course, $hole, $par, $conn)
 function printHolesByCourseHole($course, $hole, $conn)
 {
 	try {
-		$statement = $conn->prepare('SELECT * FROM course_info WHERE course_name = :course AND hole_number = :hole');
+		$statement = $conn->prepare('SELECT * FROM course_info WHERE course_name = :course AND hole = :hole');
 		$statement->bindParam('course', $course);
 		$statement->bindParam('hole', $hole);
 		$result = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -222,7 +221,7 @@ function printHolesByCoursePar($course, $par, $conn)
 function printHolesByHolePar($hole, $par, $conn)
 {
 	try {
-		$statement = $conn->prepare('SELECT * FROM course_info WHERE hole_number = :hole AND par = :par');
+		$statement = $conn->prepare('SELECT * FROM course_info WHERE hole = :hole AND par = :par');
 		$statement->bindParam('hole', $hole);
 		$statement->bindParam('par', $par);
 		$result = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -457,7 +456,7 @@ function deleteHole($conn, $_DELETE)
 	}
 
 	try {
-		$statement  = $conn->prepare('DELETE FROM course_info WHERE course_name = :name AND hole_number = :hole');
+		$statement  = $conn->prepare('DELETE FROM course_info WHERE course_name = :name AND hole = :hole');
 		$statement->bindParam('name', $course_name);
 		$statement->bindParam('hole', $hole);
 		$statement->execute();
@@ -551,7 +550,7 @@ function addHole($conn)
 
 	try
 	{
-		$statement = $conn->prepare("INSERT INTO `course_info` (course_name, hole_number, yardage_blue, yardage_white, yardage_red, par) VALUES (:course_name, :hole, :blue, :white, :red, :par);");
+		$statement = $conn->prepare("INSERT INTO `course_info` (course_name, hole, yardage_blue, yardage_white, yardage_red, par) VALUES (:course_name, :hole, :blue, :white, :red, :par);");
 		$statement->bindParam(':course_name', $course_name);
 		$statement->bindParam(':hole', $hole);
 		$statement->bindParam(':blue', $blue);
@@ -615,6 +614,7 @@ if($_SERVER["REQUEST_METHOD"] == "GET")
 
 	if(isset($_GET["holes"]) && !empty($_GET["holes"]))
 	{
+		//var_dump($_GET["course_name"]);
 		if(isset($_GET["course_name"]) && !empty($_GET["course_name"]))
 		{
 			if(isset($_GET["hole"]) && !empty($_GET["hole"]))
@@ -635,7 +635,7 @@ if($_SERVER["REQUEST_METHOD"] == "GET")
 			}
 			else
 			{
-				printHolesByCourse($_GET["course"], getConnection($servername, $username, $password));
+				printHolesByCourse($_GET["course_name"], getConnection($servername, $username, $password));
 			}
 
 		}//End course_name check
@@ -656,6 +656,7 @@ if($_SERVER["REQUEST_METHOD"] == "GET")
 		}
 		else//default print
 		{
+
 			printHoles(getConnection($servername, $username, $password));
 		}
 	}

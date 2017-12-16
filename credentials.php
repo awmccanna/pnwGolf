@@ -7,11 +7,6 @@
  */
 
 $servername = "localhost";
-//$username = "awmccanna";
-//$password = "password";
-
-//$username = "alexmcc2_cscd378";
-//$password = "cscd378Password";
 
 $username = "public";
 $password = "public";
